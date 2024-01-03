@@ -254,4 +254,4 @@ print("Brier score", brier_score_loss(y_cal, y_pred))
 # when the probability of a goal is higher
 
 #todo Euro 2020 xG using model
-# todo how do you choose early stopping object/ number of layers / number of neurons / learning rate?
+
