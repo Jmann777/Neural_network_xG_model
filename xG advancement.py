@@ -15,7 +15,7 @@ import random as rn
 import tensorflow as tf
 import keras
 import Statsbomb as Sb
-import Player_Distance_Features_Sb as pdf
+import Shots_Features_Sb as pdf
 
 #import machine learning libraries
 from sklearn.model_selection import train_test_split
