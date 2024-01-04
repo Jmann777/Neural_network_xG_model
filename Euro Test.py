@@ -5,7 +5,6 @@ import Shots_Features_Sb as pdf
 
 from sklearn.preprocessing import StandardScaler
 
-
 # We are now going to test the model on Euro 2020 data
 # Opening data
 cid = 55
@@ -13,7 +12,6 @@ sid = 43
 df_match = Sb.sb_matches(cid, sid)
 shots = Sb.sb_shots_season(cid, sid)
 track_df = Sb.sb_tracking_season(cid, sid)
-
 
 # Filtering out non open_play shots
 shots = shots[shots["sub_type_name"] == "Open Play"]
@@ -43,8 +41,8 @@ model_vars["header"] = shots.body_part_name.apply(lambda cell: 1 if cell == "Hea
 
 # Store model vars into a matrix
 X_unseen = model_vars[["x0", "is_closer", "angle", "distance",
-                        "gk_distance", "gk_distance_y",
-                        "triangle", "close_players", "header", "xg_basic"]].values
+                       "gk_distance", "gk_distance_y",
+                       "triangle", "close_players", "header", "xg_basic"]].values
 # Scale the data
 scaler = StandardScaler()
 X_unseen = scaler.transform(X_unseen)
