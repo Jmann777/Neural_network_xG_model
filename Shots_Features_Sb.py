@@ -1,4 +1,6 @@
 import numpy as np
+import statsmodels.formula.api as smf
+import statsmodels.api as sm
 
 
 def default_model_vars(shots):
@@ -87,3 +89,18 @@ def gk_dist_to_goal(test_shot, track_df):
     # calculate their distance to goal
     dist = np.sqrt((105 - gk_pos["x"]) ** 2 + (34 - gk_pos["y"]) ** 2)
     return dist.iloc[0]
+
+# Logistic regression to calculate xg
+def params(df):
+    test_model = smf.glm(formula="goal_smf ~ angle + distance", data=df,
+                         family=sm.families.Binomial()).fit()
+    print(test_model.summary())
+    return test_model.params
+
+
+def calculate_xG(sh, b):
+    bsum = b[0]
+    for i, v in enumerate(["angle", "distance"]):
+        bsum = bsum + b[i + 1] * sh[v]
+    xG = 1 / (1 + np.exp(bsum))
+    return xG

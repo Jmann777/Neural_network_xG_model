@@ -5,8 +5,6 @@ player locations. It will work with ISL data
 
 # Importing modules
 import numpy as np
-import statsmodels.api as sm
-import statsmodels.formula.api as smf
 import matplotlib.pyplot as plt
 import Statsbomb as Sb
 import Shots_Features_Sb as pdf
@@ -38,26 +36,9 @@ shots = shots[shots["id"].isin(gks_tracked)]
 # Importing model variables
 model_vars = pdf.default_model_vars(shots=shots)
 
-
-# Logistic regression to calculate xg
-def params(df):
-    test_model = smf.glm(formula="goal_smf ~ angle + distance", data=df,
-                         family=sm.families.Binomial()).fit()
-    print(test_model.summary())
-    return test_model.params
-
-
-def calculate_xG(sh, b):
-    bsum = b[0]
-    for i, v in enumerate(["angle", "distance"]):
-        bsum = bsum + b[i + 1] * sh[v]
-    xG = 1 / (1 + np.exp(bsum))
-    return xG
-
-
 # Expected goals based on distance to goal and angle between the ball and the goal
-b = params(model_vars)
-model_vars["xg_basic"] = model_vars.apply(calculate_xG, b=b, axis=1)
+b = pdf.params(model_vars)
+model_vars["xg_basic"] = model_vars.apply(pdf.calculate_xG, b=b, axis=1)
 # Storing goalkeeper distances for all tracked events
 model_vars["gk_distance"] = shots.apply(pdf.dist_to_gk, track_df=track_df, axis=1)
 # store distance in y axis from event to goalkeeper position in a dataframe
@@ -68,7 +49,7 @@ model_vars["close_players"] = shots.apply(pdf.three_meters_away, track_df=track_
 model_vars["triangle"] = shots.apply(pdf.players_in_triangle, track_df=track_df, axis=1)
 # store opposition's goalkeeper distance to goal in a dataframe
 model_vars["gk_dist_to_goal"] = shots.apply(pdf.gk_dist_to_goal, track_df=track_df, axis=1)
-# create binary varibale 1 if ball is closer to the goal than goalkeeper
+# create binary variable 1 if ball is closer to the goal than goalkeeper
 model_vars["is_closer"] = np.where(model_vars["gk_dist_to_goal"] > model_vars["distance"], 1, 0)
 # create binary variable 1 if header
 model_vars["header"] = shots.body_part_name.apply(lambda cell: 1 if cell == "Head" else 0)
@@ -100,7 +81,7 @@ X_val = scaler.transform(X_val)
 X_cal = scaler.transform(X_cal)
 
 
-# Model creation- see model.py
+# Model creation - see model.py
 model = Model.create_model()
 # early stopping object (callback)- https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/EarlyStopping
 callback = EarlyStopping(min_delta=1e-5, patience=50, mode='min', monitor='val_loss', restore_best_weights=True)
