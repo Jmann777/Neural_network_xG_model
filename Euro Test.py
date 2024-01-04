@@ -54,4 +54,5 @@ model = Model.create_model()
 xgs_euro = model.predict(X_unseen)
 # Top 10 players with open play xG
 shots["our_xG"] = xgs_euro
-shots.groupby(["player_name"])["our_xG"].sum().sort_value(ascending=False)[:5].reset_index()
+print(shots.groupby(["player_name"])["our_xG"].sum().sort_values(ascending=False)[:10].reset_index())
+

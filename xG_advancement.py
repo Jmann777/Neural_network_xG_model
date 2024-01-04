@@ -81,7 +81,7 @@ X_train = scaler.fit_transform(X_train)
 X_val = scaler.transform(X_val)
 X_cal = scaler.transform(X_cal)
 # Save fitted scaler for use in other file
-joblib.dump(scaler, 'fitted_scaler.joblib')
+joblib.dump(scaler, n )
 
 # Model creation - see model.py
 model = Model.create_model()
