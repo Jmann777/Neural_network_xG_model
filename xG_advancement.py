@@ -4,16 +4,10 @@ player locations. It will work with ISL data
 """
 
 # Importing modules
-import pandas as pd
 import numpy as np
-import warnings
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import matplotlib.pyplot as plt
-import os
-import random as rn
-import tensorflow as tf
-import keras
 import Statsbomb as Sb
 import Shots_Features_Sb as pdf
 import Model
@@ -23,9 +17,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_curve, roc_auc_score, brier_score_loss
 from sklearn.calibration import calibration_curve
-from keras import Sequential
-from keras.layers import Dense
-from keras import optimizers
 from keras.callbacks import EarlyStopping
 
 ''' ***** Data Prep *****'''
@@ -35,15 +26,12 @@ sid = 108
 df_match = Sb.sb_matches(cid, sid)
 shots = Sb.sb_shots_season(cid, sid)
 track_df = Sb.sb_tracking_season(cid, sid)
-print(track_df.shape)
 
 # Filtering out non open_play shots
 shots = shots[shots["sub_type_name"] == "Open Play"]
 # Filter out shots where goalkeeper was not tracked
 gks_tracked = track_df[track_df["teammate"] == False][track_df["position_name"] == "Goalkeeper"]['id'].unique()
 shots = shots[shots["id"].isin(gks_tracked)]
-
-print(shots.shape)
 
 ''' ***** Model Prep- This includes the creation of features within the model and  *****'''
 
@@ -72,92 +60,15 @@ b = params(model_vars)
 model_vars["xg_basic"] = model_vars.apply(calculate_xG, b=b, axis=1)
 
 # Storing goalkeeper distances for all tracked events
-def dist_to_gk(test_shot, track_df):
-    # get id of the shot to search for tracking data using this index- test shot in local to this function
-    test_shot_id = test_shot["id"]
-    # check goalkeeper position
-    gk_pos = track_df.loc[track_df["id"] == test_shot_id].loc[track_df["teammate"] == False].loc[
-        track_df["position_name"] == "Goalkeeper"][["x", "y"]]
-    # calculate distance from event to goalkeeper position
-    dist = np.sqrt((test_shot["x"] - gk_pos["x"]) ** 2 + (test_shot["y"] - gk_pos["y"]) ** 2)
-    return dist.iloc[0]
-
-# store distance from event to goalkeeper position in a dataframe
-model_vars["gk_distance"] = shots.apply(dist_to_gk, track_df=track_df, axis=1)
-
-
-# ball goalkeeper y axis
-def y_to_gk(test_shot, track_df):
-    # get id of the shot to search for tracking data using this index
-    test_shot_id = test_shot["id"]
-    # calculate distance from event to goalkeeper position
-    gk_pos = track_df.loc[track_df["id"] == test_shot_id].loc[track_df["teammate"] == False].loc[
-        track_df["position_name"] == "Goalkeeper"][["y"]]
-    # calculate distance from event to goalkeeper position in y axis
-    dist = abs(test_shot["y"] - gk_pos["y"])
-    return dist.iloc[0]
-
-
+model_vars["gk_distance"] = shots.apply(pdf.dist_to_gk, track_df=track_df, axis=1)
 # store distance in y axis from event to goalkeeper position in a dataframe
-model_vars["gk_distance_y"] = shots.apply(y_to_gk, track_df=track_df, axis=1)
-
-
-# number of players less than 3 meters away from the ball
-def three_meters_away(test_shot, track_df):
-    # get id of the shot to search for tracking data using this index
-    test_shot_id = test_shot["id"]
-    # get all opposition's player location
-    player_position = track_df.loc[track_df["id"] == test_shot_id].loc[track_df["teammate"] == False][["x", "y"]]
-    # calculate their distance to the ball
-    dist = np.sqrt((test_shot["x"] - player_position["x"]) ** 2 + (test_shot["y"] - player_position["y"]) ** 2)
-    # return how many are closer to the ball than 3 meters
-    return len(dist[dist < 3])
-
-
+model_vars["gk_distance_y"] = shots.apply(pdf.y_to_gk, track_df=track_df, axis=1)
 # store number of opposition's players closer than 3 meters in a dataframe
-model_vars["close_players"] = shots.apply(three_meters_away, track_df=track_df, axis=1)
-
-
-# number of players inside a triangle
-def players_in_triangle(test_shot, track_df):
-    # get id of the shot to search for tracking data using this index
-    test_shot_id = test_shot["id"]
-    # get all opposition's player location
-    player_position = track_df.loc[track_df["id"] == test_shot_id].loc[track_df["teammate"] == False][["x", "y"]]
-    # checking if point inside a triangle
-    x1 = 105
-    y1 = 34 - 7.32 / 2
-    x2 = 105
-    y2 = 34 + 7.32 / 2
-    x3 = test_shot["x"]
-    y3 = test_shot["y"]
-    xp = player_position["x"]
-    yp = player_position["y"]
-    c1 = (x2 - x1) * (yp - y1) - (y2 - y1) * (xp - x1)
-    c2 = (x3 - x2) * (yp - y2) - (y3 - y2) * (xp - x2)
-    c3 = (x1 - x3) * (yp - y3) - (y1 - y3) * (xp - x3)
-    # get number of players inside a triangle
-    return len(player_position.loc[((c1 < 0) & (c2 < 0) & (c3 < 0)) | ((c1 > 0) & (c2 > 0) & (c3 > 0))])
-
-
+model_vars["close_players"] = shots.apply(pdf.three_meters_away, track_df=track_df, axis=1)
 # store number of opposition's players inside a triangle in a dataframe
-model_vars["triangle"] = shots.apply(players_in_triangle, track_df=track_df, axis=1)
-
-
-# goalkeeper distance to goal
-def gk_dist_to_goal(test_shot, track_df):
-    # get id of the shot to search for tracking data using this index
-    test_shot_id = test_shot["id"]
-    # get goalkeeper position
-    gk_pos = track_df.loc[track_df["id"] == test_shot_id].loc[track_df["teammate"] == False].loc[
-        track_df["position_name"] == "Goalkeeper"][["x", "y"]]
-    # calculate their distance to goal
-    dist = np.sqrt((105 - gk_pos["x"]) ** 2 + (34 - gk_pos["y"]) ** 2)
-    return dist.iloc[0]
-
-
+model_vars["triangle"] = shots.apply(pdf.players_in_triangle, track_df=track_df, axis=1)
 # store opposition's goalkeeper distance to goal in a dataframe
-model_vars["gk_dist_to_goal"] = shots.apply(gk_dist_to_goal, track_df=track_df, axis=1)
+model_vars["gk_dist_to_goal"] = shots.apply(pdf.gk_dist_to_goal, track_df=track_df, axis=1)
 # create binary varibale 1 if ball is closer to the goal than goalkeeper
 model_vars["is_closer"] = np.where(model_vars["gk_dist_to_goal"] > model_vars["distance"], 1, 0)
 # create binary variable 1 if header
