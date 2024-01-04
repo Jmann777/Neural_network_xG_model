@@ -2,6 +2,7 @@ import Model
 import numpy as np
 import Statsbomb as Sb
 import Shots_Features_Sb as pdf
+import joblib
 
 from sklearn.preprocessing import StandardScaler
 
@@ -39,12 +40,14 @@ model_vars["is_closer"] = np.where(model_vars["gk_dist_to_goal"] > model_vars["d
 # create binary variable 1 if header
 model_vars["header"] = shots.body_part_name.apply(lambda cell: 1 if cell == "Head" else 0)
 
+# load scaler details
+scaler = joblib.load('fitted_scaler.joblib')
+
 # Store model vars into a matrix
 X_unseen = model_vars[["x0", "is_closer", "angle", "distance",
                        "gk_distance", "gk_distance_y",
                        "triangle", "close_players", "header", "xg_basic"]].values
-# Scale the data
-scaler = StandardScaler()
+
 X_unseen = scaler.transform(X_unseen)
 # Make prediction on euros data
 model = Model.create_model()

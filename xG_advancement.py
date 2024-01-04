@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import Statsbomb as Sb
 import Shots_Features_Sb as pdf
 import Model
+import joblib
 
 # Import machine learning libraries
 from sklearn.model_selection import train_test_split
@@ -79,6 +80,8 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_val = scaler.transform(X_val)
 X_cal = scaler.transform(X_cal)
+# Save fitted scaler for use in other file
+joblib.dump(scaler, 'fitted_scaler.joblib')
 
 # Model creation - see model.py
 model = Model.create_model()
