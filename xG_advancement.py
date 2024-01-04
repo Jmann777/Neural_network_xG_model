@@ -58,7 +58,6 @@ def calculate_xG(sh, b):
 # Expected goals based on distance to goal and angle between the ball and the goal
 b = params(model_vars)
 model_vars["xg_basic"] = model_vars.apply(calculate_xG, b=b, axis=1)
-
 # Storing goalkeeper distances for all tracked events
 model_vars["gk_distance"] = shots.apply(pdf.dist_to_gk, track_df=track_df, axis=1)
 # store distance in y axis from event to goalkeeper position in a dataframe
