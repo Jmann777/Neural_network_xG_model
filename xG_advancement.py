@@ -10,7 +10,7 @@ import Statsbomb as Sb
 import Shots_Features_Sb as pdf
 import Model
 
-#import machine learning libraries
+# Import machine learning libraries
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_curve, roc_auc_score, brier_score_loss
@@ -80,18 +80,17 @@ X_train = scaler.fit_transform(X_train)
 X_val = scaler.transform(X_val)
 X_cal = scaler.transform(X_cal)
 
-
 # Model creation - see model.py
 model = Model.create_model()
 # early stopping object (callback)- https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/EarlyStopping
 callback = EarlyStopping(min_delta=1e-5, patience=50, mode='min', monitor='val_loss', restore_best_weights=True)
 # Fit the model
-history = model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=1000, verbose=1, batch_size=16, callbacks=[callback])
+history = model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=1000, verbose=1, batch_size=16,
+                    callbacks=[callback])
 
-fig, axs = plt.subplots(2, figsize=(10,12))
+fig, axs = plt.subplots(2, figsize=(10, 12))
 
-
-#plot training history - accuracy
+# plot training history - accuracy
 axs[0].plot(history.history['accuracy'], label='train')
 axs[0].plot(history.history['val_accuracy'], label='validation')
 axs[0].set_title("Accuracy at each epoch")
@@ -99,7 +98,7 @@ axs[0].set_xlabel("Epoch")
 axs[0].set_ylabel("Accuracy")
 axs[0].legend()
 
-#plot training history - loss function
+# plot training history - loss function
 axs[1].plot(history.history['loss'], label='train')
 axs[1].plot(history.history['val_loss'], label='validation')
 axs[1].legend()
@@ -109,12 +108,12 @@ axs[1].set_ylabel("MSE")
 plt.show()
 
 # Model Assessment using ROC(+AUC- score 0.7-0.8 = acceptable, 0.8+ = good) + calibration curve
-fig, axs = plt.subplots(2, figsize=(10,12))
+fig, axs = plt.subplots(2, figsize=(10, 12))
 y_pred = model.predict(X_cal)
 fpr, tpr, _ = roc_curve(y_cal, y_pred)
 auc = roc_auc_score(y_cal, y_pred)
-axs[0].plot(fpr,tpr,label= "AUC = " + str(auc)[:4])
-axs[0].plot([0, 1], [0, 1], color='black', ls = '--')
+axs[0].plot(fpr, tpr, label="AUC = " + str(auc)[:4])
+axs[0].plot([0, 1], [0, 1], color='black', ls='--')
 axs[0].legend()
 axs[0].set_ylabel('True Positive Rate')
 axs[0].set_xlabel('False Positive Rate')
@@ -123,7 +122,7 @@ axs[0].set_title('ROC curve')
 # Calibration curve- Actual probability vs predicted probability
 prob_true, prob_pred = calibration_curve(y_cal, y_pred, n_bins=10)
 axs[1].plot(prob_true, prob_pred)
-axs[1].plot([0, 1], [0, 1], color='black', ls = '--')
+axs[1].plot([0, 1], [0, 1], color='black', ls='--')
 axs[1].set_ylabel('Empirical Probability')
 axs[1].set_xlabel('Predicted Probability')
 axs[1].set_title("Calibration curve")
