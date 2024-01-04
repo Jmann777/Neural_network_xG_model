@@ -16,6 +16,7 @@ import tensorflow as tf
 import keras
 import Statsbomb as Sb
 import Shots_Features_Sb as pdf
+import Model
 
 #import machine learning libraries
 from sklearn.model_selection import train_test_split
@@ -39,7 +40,7 @@ print(track_df.shape)
 # Filtering out non open_play shots
 shots = shots[shots["sub_type_name"] == "Open Play"]
 # Filter out shots where goalkeeper was not tracked
-gks_tracked = track_df.loc[track_df["teammate"] == False].loc[track_df["position_name"] == "Goalkeeper"]['id'].unique()
+gks_tracked = track_df[track_df["teammate"] == False][track_df["position_name"] == "Goalkeeper"]['id'].unique()
 shots = shots[shots["id"].isin(gks_tracked)]
 
 print(shots.shape)
@@ -189,19 +190,8 @@ X_val = scaler.transform(X_val)
 X_cal = scaler.transform(X_cal)
 
 
-# Creating a model to include architecture (10 neurons + Relu and 1 neuron + sigmoid)
-def create_model():
-    model = Sequential([
-        Dense(10, activation='relu'),
-        Dense(10, activation='relu'),
-        Dense(1, activation='sigmoid'),
-    ])
-    opt = keras.optimizers.Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999)
-    model.compile(optimizer=opt, loss='mean_squared_error', metrics=['accuracy'])
-    return model
-
-# Model creation
-model = create_model()
+# Model creation- see model.py
+model = Model.create_model()
 # early stopping object (callback)- https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/EarlyStopping
 callback = EarlyStopping(min_delta=1e-5, patience=50, mode='min', monitor='val_loss', restore_best_weights=True)
 # Fit the model
@@ -251,7 +241,4 @@ plt.show()
 print("Brier score", brier_score_loss(y_cal, y_pred))
 
 # From our results we can see that our model is satisfactory, however it tends to assign more goals than in actuality
-# when the probability of a goal is higher
-
-#todo Euro 2020 xG using model
-
+# when the probability of a goal is higher. See Euro Test.py for use of model
