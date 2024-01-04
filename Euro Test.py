@@ -3,6 +3,8 @@ import numpy as np
 import Statsbomb as Sb
 import Shots_Features_Sb as pdf
 
+from sklearn.preprocessing import StandardScaler
+
 
 # We are now going to test the model on Euro 2020 data
 # Opening data
@@ -21,7 +23,9 @@ shots = shots[shots["id"].isin(gks_tracked)]
 
 # Model variables
 model_vars = pdf.default_model_vars(shots=shots)
-model_vars["xg_basic"] = model_vars.apply(calculate_xG, b=b, axis=1)
+# Storing basic xG calculation (angle and distance)
+b = pdf.params(model_vars)
+model_vars["xg_basic"] = model_vars.apply(pdf.calculate_xG, b=b, axis=1)
 # Storing goalkeeper distances for all tracked events
 model_vars["gk_distance"] = shots.apply(pdf.dist_to_gk, track_df=track_df, axis=1)
 # store distance in y axis from event to goalkeeper position in a dataframe
@@ -37,4 +41,16 @@ model_vars["is_closer"] = np.where(model_vars["gk_dist_to_goal"] > model_vars["d
 # create binary variable 1 if header
 model_vars["header"] = shots.body_part_name.apply(lambda cell: 1 if cell == "Head" else 0)
 
+# Store model vars into a matrix
+X_unseen = model_vars[["x0", "is_closer", "angle", "distance",
+                        "gk_distance", "gk_distance_y",
+                        "triangle", "close_players", "header", "xg_basic"]].values
+# Scale the data
+scaler = StandardScaler()
+X_unseen = scaler.transform(X_unseen)
+# Make prediction on euros data
 model = Model.create_model()
+xgs_euro = model.predict(X_unseen)
+# Top 10 players with open play xG
+shots["our_xG"] = xgs_euro
+shots.groupby(["player_name"])["our_xG"].sum().sort_value(ascending=False)[:5].reset_index()
