@@ -23,16 +23,3 @@ This file contains the neural network used to model xG
 
 ## Euro Test
 This file contains code that calculates xG in Euro 2020 based on the model and outputs the top 10 players with the highest xG in Euro 2020 accroding to the model.
-
-Ther results are below:
-                          player_name    our_xG
-0           Álvaro Borja Morata Martín  2.620025
-1                           Harry Kane  2.490195
-2                          Kai Havertz  2.299895
-3  Cristiano Ronaldo dos Santos Aveiro  2.136920
-4                      Raheem Sterling  2.041717
-5                        Ciro Immobile  1.999741
-6                        Karim Benzema  1.893814
-7                        Patrik Schick  1.798568
-8                   Robert Lewandowski  1.728081
-9         Diogo José Teixeira da Silva  1.687015
