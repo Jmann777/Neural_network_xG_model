@@ -16,4 +16,10 @@ The neural network is fitted over 1000 epochs and uses the early stopping callba
 This file contains basic code used to open event and tracking data alongside basic mathematical conversions to account for the given lenght and width of a football pitch.
 
 ## Shots_Features_Sb.py
-This file contains the code realted to the calculation of a basic xG model around angle and distance of a given shot from the goal.
+This file contains the code related to the calculation of a basic xG model around angle and distance of a given shot from the goal.
+
+## Model
+This file contains the neural network used to model xG
+
+## Euro Test
+This file contains code that calculates xG in Euro 2020 based on the model
