@@ -1,5 +1,5 @@
 """
-The script will train the neural network model to predict xG on 2015-16 Premier League goal event and tracking data.
+The script will train the neural network model to predict xG on ISL goal event and tracking data.
 The model takes a combination of variables that include information taken from the Shots_features module.
 After the model is run, visualisations of the model are created which include assessments of the model (AUC + ROC and
 calibration curves).
