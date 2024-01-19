@@ -1,3 +1,7 @@
+"""The following file creates the features used as independent variables within the neural network trained in
+xG_advancement.py. It consists of a basic distance and angle based xG calculation combined with goalkeeper location and
+close player location
+"""
 import numpy as np
 import statsmodels.formula.api as smf
 import statsmodels.api as sm
@@ -36,7 +40,6 @@ def dist_to_gk(test_shot, track_df):
     return dist.iloc[0]
 
 
-# ball goalkeeper y axis
 def y_to_gk(test_shot, track_df):
     # get id of the shot to search for tracking data using this index
     test_shot_id = test_shot["id"]
@@ -47,7 +50,7 @@ def y_to_gk(test_shot, track_df):
     dist = abs(test_shot["y"] - gk_pos["y"])
     return dist.iloc[0]
 
-# number of players less than 3 meters away from the ball
+
 def three_meters_away(test_shot, track_df):
     # get id of the shot to search for tracking data using this index
     test_shot_id = test_shot["id"]
@@ -58,7 +61,7 @@ def three_meters_away(test_shot, track_df):
     # return how many are closer to the ball than 3 meters
     return len(dist[dist < 3])
 
-# number of players inside a triangle
+
 def players_in_triangle(test_shot, track_df):
     # get id of the shot to search for tracking data using this index
     test_shot_id = test_shot["id"]
@@ -79,6 +82,7 @@ def players_in_triangle(test_shot, track_df):
     # get number of players inside a triangle
     return len(player_position.loc[((c1 < 0) & (c2 < 0) & (c3 < 0)) | ((c1 > 0) & (c2 > 0) & (c3 > 0))])
 
+
 # goalkeeper distance to goal
 def gk_dist_to_goal(test_shot, track_df):
     # get id of the shot to search for tracking data using this index
@@ -90,11 +94,11 @@ def gk_dist_to_goal(test_shot, track_df):
     dist = np.sqrt((105 - gk_pos["x"]) ** 2 + (34 - gk_pos["y"]) ** 2)
     return dist.iloc[0]
 
+
 # Logistic regression to calculate xg
 def params(df):
     test_model = smf.glm(formula="goal_smf ~ angle + distance", data=df,
                          family=sm.families.Binomial()).fit()
-    print(test_model.summary())
     return test_model.params
 
 

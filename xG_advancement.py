@@ -1,22 +1,20 @@
 """
-The script will look at training a shallow neural network with more advanced features to include opposition
-player locations. It will work with ISL data
+The script will train the neural network model to predict xG on 2015-16 Premier League goal event and tracking data.
+The model takes a combination of variables that include information taken from the Shots_features module.
+After the model is run, visualisations of the model are created which include assessments of the model (AUC + ROC and
+calibration curves).
 """
 
 # Importing modules
+import Model
 import numpy as np
 import matplotlib.pyplot as plt
 import Statsbomb as Sb
 import Shots_Features_Sb as pdf
-import Model
-import joblib
 
 # Import machine learning libraries
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_curve, roc_auc_score, brier_score_loss
 from sklearn.calibration import calibration_curve
-from keras.callbacks import EarlyStopping
 
 ''' ***** Data Prep *****'''
 # Opening data
@@ -32,7 +30,7 @@ shots = shots[shots["sub_type_name"] == "Open Play"]
 gks_tracked = track_df[track_df["teammate"] == False][track_df["position_name"] == "Goalkeeper"]['id'].unique()
 shots = shots[shots["id"].isin(gks_tracked)]
 
-''' ***** Model Prep- This includes the creation of features within the model and  *****'''
+''' ***** Model Prep- This includes the creation of features within the model taken from Shots_Features.py  *****'''
 
 # Importing model variables
 model_vars = pdf.default_model_vars(shots=shots)
@@ -62,34 +60,10 @@ X = model_vars[
     ["x0", "is_closer", "angle", "distance", "gk_distance", "gk_distance_y", "triangle", "close_players", "header",
      "xg_basic"]].values
 
-##############################################################################
-# Training neural network - what is a neural network? https://www.youtube.com/watch?v=aircAruvnKk
-# ----------------------------
-# With the features created we can now train a neural network. We split the data 60% training, 20% validation and 20% test. Then, we scale inputs.
-# As the next step, we create a neural network model. It follows similar design choices as Javier Fernandez's one. 2 dense layers sized 10 followed
-# by a ReLU activation and a final layer size 1 with sigmoid activation to compute the probabilities. Our model optimizes the Brier score using Adam
-# optimizer with learning rate 0.001 default betas. We use as suggested early stopping with minimum delta 1e-5 and batch size 16. However, we also use patience
-# equal to 50 not to stop the first time when the validation loss is not changing.
-
-# Split the data into a train, validation, and test set
-X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.6, random_state=123, stratify=y)
-X_cal, X_val, y_cal, y_val = train_test_split(X_test, y_test, train_size=0.5, random_state=123, stratify=y_test)
-
-# Scale the data to ensure equality of feature contribution
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_val = scaler.transform(X_val)
-X_cal = scaler.transform(X_cal)
-# Save fitted scaler for use in other file
-joblib.dump(scaler, n )
-
-# Model creation - see model.py
-model = Model.create_model()
-# early stopping object (callback)- https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/EarlyStopping
-callback = EarlyStopping(min_delta=1e-5, patience=50, mode='min', monitor='val_loss', restore_best_weights=True)
-# Fit the model
-history = model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=1000, verbose=1, batch_size=16,
-                    callbacks=[callback])
+''' ***** Model Training- Calling in the model from Model.py  *****'''
+# Calling in neural network from Model.py
+X_train, X_val, X_cal, y_train, y_val, y_cal = Model.setup_model(X, y)
+model, history = Model.run_model(X_train, y_train, X_val, y_val)
 
 fig, axs = plt.subplots(2, figsize=(10, 12))
 
@@ -111,7 +85,7 @@ axs[1].set_ylabel("MSE")
 plt.show()
 
 # Model Assessment using ROC(+AUC- score 0.7-0.8 = acceptable, 0.8+ = good) + calibration curve
-fig, axs = plt.subplots(2, figsize=(10, 12))
+plt, axs = plt.subplots(2, figsize=(10, 12))
 y_pred = model.predict(X_cal)
 fpr, tpr, _ = roc_curve(y_cal, y_pred)
 auc = roc_auc_score(y_cal, y_pred)
@@ -134,4 +108,4 @@ plt.show()
 print("Brier score", brier_score_loss(y_cal, y_pred))
 
 # From our results we can see that our model is satisfactory, however it tends to assign more goals than in actuality
-# when the probability of a goal is higher. See Euro Test.py for use of model
+# when the probability of a goal is higher.

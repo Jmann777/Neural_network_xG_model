@@ -1,3 +1,7 @@
+""" The following file imports match, event, and tracking data from statsbomb. It also creates a dataframe consisting
+of shots from the imported event data
+"""
+
 from mplsoccer import Sbopen
 import numpy as np
 import pandas as pd

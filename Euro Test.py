@@ -1,12 +1,25 @@
-import Model
+"""
+The following script using the neural network created in Model.py and trained in xG_advancement.py to calculate
+the xG for each player at Euro 2020. It then outputs the top 10 players with the highest xG
+"""
+import joblib
+import os
 import numpy as np
 import Statsbomb as Sb
 import Shots_Features_Sb as pdf
-import joblib
+import tensorflow as tf
+import random as rn
 
-from sklearn.preprocessing import StandardScaler
+from keras.models import load_model
 
-# We are now going to test the model on Euro 2020 data
+# Setting random seeds in order to allow for reproducibility
+os.environ['PYTHONHASHSEED'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
+np.random.seed(1)
+rn.seed(1)
+tf.random.set_seed(1)
+
+""" ***** Data preparation for the model *****"""
 # Opening data
 cid = 55
 sid = 43
@@ -19,6 +32,7 @@ shots = shots[shots["sub_type_name"] == "Open Play"]
 # Filter out shots where goalkeeper was not tracked
 gks_tracked = track_df[track_df["teammate"] == False].loc[track_df["position_name"] == "Goalkeeper"]['id'].unique()
 shots = shots[shots["id"].isin(gks_tracked)]
+print(shots.shape)
 
 # Model variables
 model_vars = pdf.default_model_vars(shots=shots)
@@ -40,19 +54,23 @@ model_vars["is_closer"] = np.where(model_vars["gk_dist_to_goal"] > model_vars["d
 # create binary variable 1 if header
 model_vars["header"] = shots.body_part_name.apply(lambda cell: 1 if cell == "Head" else 0)
 
+""" ***** Loading and using the model to predict the top 10 players with highest xG according to the model in
+Euro 2020.
+"""
 # load scaler details
 scaler = joblib.load('fitted_scaler.joblib')
+# load trained model
+model = load_model('best_model.h5')
 
 # Store model vars into a matrix
 X_unseen = model_vars[["x0", "is_closer", "angle", "distance",
                        "gk_distance", "gk_distance_y",
                        "triangle", "close_players", "header", "xg_basic"]].values
-
+# Scale independent variables
 X_unseen = scaler.transform(X_unseen)
-# Make prediction on euros data
-model = Model.create_model()
+# Make calculation on euros data
 xgs_euro = model.predict(X_unseen)
-# Top 10 players with open play xG
+# Assign xG to the shots dataframe
 shots["our_xG"] = xgs_euro
+# Output the top 10 players with the highest xG
 print(shots.groupby(["player_name"])["our_xG"].sum().sort_values(ascending=False)[:10].reset_index())
-
