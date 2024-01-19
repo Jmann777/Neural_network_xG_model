@@ -5,7 +5,7 @@ The following repository stores syntax related to football analytics.
 This repository contains syntax based on David Sumpter's Expected goals neural network modelling tutorial- found here https://soccermatics.readthedocs.io/en/latest/gallery/lesson7/plot_xG_tracking.html.
 It creates an xG based on a 3 layer (2 RelU, 1 sigmoid) neural netwrok to predict whether a goal is scored (1) or a goal is not scored (0) based on a basic set of variables obtained from tracking data.
 
-The model itself is based from Indian Super League data and combines both event and tracking data. The model is then used to calculate xG in Euro 2020.
+The model itself is based from Indian Super League data and combines both event and tracking data. The model is then used to calculate open play xG in Euro 2020.
 
 
 ## xG advancement.py
