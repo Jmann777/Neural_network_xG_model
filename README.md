@@ -22,4 +22,7 @@ This file contains the code related to the calculation of a basic xG model aroun
 This file contains the neural network used to model xG
 
 ## Euro Test
-This file contains code that calculates xG in Euro 2020 based on the model and outputs the top 10 players with the highest xG in Euro 2020 accroding to the model.
+This file contains code that calculates xG in Euro 2020 based on the model and outputs the top 10 players with the highest xG in Euro 2020 accroding to the model. The results of which can be seen below.
+
+![xG model Euro 2020 results](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/ef6a1775-52a9-48fd-9049-180f78fa1538)
+
