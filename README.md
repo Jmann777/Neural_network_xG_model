@@ -5,7 +5,7 @@ The following repository stores syntax related to football analytics.
 This repository contains syntax based on David Sumpter's Expected goals neural network modelling tutorial- found here https://soccermatics.readthedocs.io/en/latest/gallery/lesson7/plot_xG_tracking.html.
 It creates an xG based on a 3 layer (2 RelU, 1 sigmoid) neural netwrok to predict whether a goal is scored (1) or a goal is not scored (0) based on a basic set of variables obtained from tracking data.
 
-The model itself is based from Indian Super League data and combines both event and tracking data. The model is then used to calculate open play xG in Euro 2020.
+The model itself is based from Indian Super League data and combines both event and tracking data. The model is then used to calculate open play xG in Euro 2020. This model can be used to identify player performance and can be used as a player evaluation model when considering player recruitment identification.
 
 
 ## xG advancement.py
@@ -24,11 +24,11 @@ This file contains the neural network used to model xG
 ## Euro Test
 This file contains code that calculates xG in Euro 2020 based on the model and outputs the top 10 players with the highest xG in Euro 2020 according to the model. The results of the model use on the Euro 2020 dataset can be vizualised below:
 
-#Top 10 Players by open play xG
+**Top 10 Players by open play xG**
 
 ![xG model Euro 2020 results](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/ef6a1775-52a9-48fd-9049-180f78fa1538)
 
-#Top 10 overperforming players by open play xG per 90 
+**Top 10 overperforming players by open play xG per 90** 
 (note the sample size for this visualisation was reduced due to minutes played data being webscraped from the FbRef website. The difference in player naming conventions between the statsbomb and FbRef data means some players were excluded)
 
 ![xG model Euro 2020 Scatter](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/34e85482-5041-4fbe-b4cd-8f84638625e6)
