@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "neural network xg model"
+version = "0.1.0"
+description = "Predictive neural network model used to predict xG"
+authors = ["Jmann777 <87671742+Jmann777@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pandas = "^1.5.3"
+numpy = "^1.21"
+statsbomb = "^0.3"
+joblib = "^1.0"
+matplotlib = "^3.4"
+mplsoccer = "^1.0"
+statsmodels = "^0.12"
+scikit-learn = "^0.24"
+tensorflow = "^2.8"
+keras = "^2.8"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
