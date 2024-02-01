@@ -5,6 +5,18 @@ After the model is run, visualisations of the model are created which include as
 calibration curves).
 """
 
+# Importing modules
+import Model
+import numpy as np
+import matplotlib.pyplot as plt
+import Statsbomb as Sb
+import Shots_Features_Sb as pdf
+import pandas as pd
+
+# Import machine learning libraries
+from sklearn.metrics import roc_curve, roc_auc_score, brier_score_loss
+from sklearn.calibration import calibration_curve
+
 ''' ***** Data Prep *****'''
 # Opening data
 cid: int = 1238
