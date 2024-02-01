@@ -16,9 +16,8 @@ import joblib
 from keras import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from sklearn.model_selection import train_test_split
-from keras.callbacks import EarlyStopping
 from sklearn.preprocessing import StandardScaler
 
 
