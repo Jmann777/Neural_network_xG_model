@@ -23,6 +23,13 @@ from sklearn.preprocessing import StandardScaler
 
 
 def create_model():
+    '''
+    Create and compile a neural network model for xG prediction. The model has two hidden layers (10 neurons and ReLU)
+    and an output layer (1 neuron and sigmoid).
+
+    Returns:
+    - Sequential: Compiled neural network model.
+    '''
     model = Sequential([
         Dense(10, activation='relu'),
         Dense(10, activation='relu'),
@@ -34,6 +41,20 @@ def create_model():
 
 
 def setup_model(X, y):
+    '''
+    Parameters:
+    - X (np.ndarray): Array containing independent variables.
+    - y (np.ndarray): Array containing the dependent variable.
+
+    Returns:
+    - Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        - X_train: Training set features.
+        - X_val: Validation set features.
+        - X_cal: Calibration set features.
+        - y_train: Training set labels.
+        - y_val: Validation set labels.
+        - y_cal: Calibration set labels.
+    '''
     X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.6,
                                                         random_state=123, stratify=y)
     X_cal, X_val, y_cal, y_val = train_test_split(X_test, y_test, train_size=0.5,
@@ -49,6 +70,20 @@ def setup_model(X, y):
 
 
 def run_model(X_train, y_train, X_val, y_val):
+    '''
+    Trains the neural network model using the provided training and validation sets.
+
+    Parameters:
+    - X_train (np.ndarray): Training set features.
+    - y_train (np.ndarray): Training set labels.
+    - X_val (np.ndarray): Validation set features.
+    - y_val (np.ndarray): Validation set labels.
+
+    Returns:
+    - Tuple[Sequential, History]:
+        - Sequential: Trained neural network model.
+        - History: Training history containing loss and accuracy metrics.
+    '''
     model = create_model()
     # early stopping object (callback)- https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/EarlyStopping
     callback = EarlyStopping(min_delta=1e-5, patience=50, mode='min', monitor='val_loss', restore_best_weights=True)
