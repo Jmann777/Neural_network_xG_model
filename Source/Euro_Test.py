@@ -5,8 +5,7 @@ the xG for each player at Euro 2020. It then outputs the top 10 players with the
 import joblib
 import os
 import numpy as np
-import Statsbomb as Sb
-import Shots_Features_Sb as pdf
+from Source import Shots_Features_Sb as pdf, Statsbomb as Sb
 import tensorflow as tf
 import random as rn
 import matplotlib.pyplot as plt
@@ -52,9 +51,9 @@ model_vars["header"] = shots.body_part_name.apply(lambda cell: 1 if cell == "Hea
 """ ***** Loading and using the model to predict the top 10 players with highest xG according to the model in
 Euro 2020. ***** """
 # load scaler details
-scaler = joblib.load('fitted_scaler.joblib')
+scaler = joblib.load('../fitted_scaler.joblib')
 # load trained model
-model = load_model('best_model.h5')
+model = load_model('../best_model.h5')
 
 # Store model vars into a matrix
 X_unseen: np.ndarray = model_vars[["x0", "is_closer", "angle", "distance",
@@ -104,7 +103,7 @@ players_xg: pd.DataFrame = shots.groupby(["player_name"])["our_xG"].sum().reset_
 # Diogo José Teixeira da Silva. As such we have a visualisation for 60 goalscorers at Euro 2020
 
 # Obtain data
-file_path = 'euro2020.csv'
+file_path = '../euro2020.csv'
 m_played: pd.DataFrame = pd.read_csv(file_path)
 m_played = m_played.rename(columns={"Player_name": 'player_name'})
 
@@ -118,12 +117,13 @@ players_total = pd.merge(players_total, players_xg, on='player_name', how='inner
 
 # Apply the condition and calculate per 90 stats
 players_total.loc[players_total['Player_Minutes'] > 90, "Goals P90"] = (
-        (players_total["total_goals"] / players_total['Player_Minutes']) * 90)
+    (players_total["total_goals"] / players_total['Player_Minutes']) * 90)
 
 players_total.loc[players_total['Player_Minutes'] > 90, "xG P90"] = (
-        (players_total["our_xG"] / players_total['Player_Minutes']) * 90)
+    (players_total["our_xG"] / players_total['Player_Minutes']) * 90)
 
 players_total['Difference'] = (players_total["Goals P90"] - players_total["xG P90"])
+
 
 # Create X and Y variable to equate to goals and xG
 x: pd.Series = players_total['xG P90']
@@ -163,6 +163,3 @@ for i, player in top_10_players.iterrows():
 
 # Show the plot
 plt.show()
-
-# todo add poetry
-# todo understand .py test

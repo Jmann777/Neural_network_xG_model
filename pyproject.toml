@@ -17,6 +17,7 @@ statsmodels = "^0.12"
 scikit-learn = "^0.24"
 tensorflow = "^2.8"
 keras = "^2.8"
+pytest = "8.0.0"
 
 
 

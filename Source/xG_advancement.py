@@ -6,11 +6,9 @@ calibration curves).
 """
 
 # Importing modules
-import Model
+from Source import Model, Shots_Features_Sb as pdf, Statsbomb as Sb
 import numpy as np
 import matplotlib.pyplot as plt
-import Statsbomb as Sb
-import Shots_Features_Sb as pdf
 import pandas as pd
 
 # Import machine learning libraries

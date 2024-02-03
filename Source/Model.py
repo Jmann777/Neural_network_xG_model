@@ -12,6 +12,7 @@ and is taken from David Sumpter's soccermatics lesson 7.
 
 
 import joblib
+import numpy as np
 
 from keras import Sequential
 from keras.layers import Dense
@@ -21,7 +22,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
-def create_model():
+def create_model() -> Sequential:
     '''
     Create and compile a neural network model for xG prediction. The model has two hidden layers (10 neurons and ReLU)
     and an output layer (1 neuron and sigmoid).
@@ -39,7 +40,7 @@ def create_model():
     return model
 
 
-def setup_model(X, y):
+def setup_model(X: np.ndarray, y: np.ndarray) -> tuple[np.ndarray]:
     '''
     Parameters:
     - X (np.ndarray): Array containing independent variables.
@@ -64,11 +65,11 @@ def setup_model(X, y):
     X_val = scaler.transform(X_val)
     X_cal = scaler.transform(X_cal)
     # Save fitted scaler for use in other file
-    joblib.dump(scaler, 'fitted_scaler.joblib')
+    joblib.dump(scaler, '../fitted_scaler.joblib')
     return X_train, X_val, X_cal, y_train, y_val, y_cal
 
 
-def run_model(X_train, y_train, X_val, y_val):
+def run_model(X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray) -> tuple[Sequential]:
     '''
     Trains the neural network model using the provided training and validation sets.
 
@@ -87,7 +88,7 @@ def run_model(X_train, y_train, X_val, y_val):
     # early stopping object (callback)- https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/EarlyStopping
     callback = EarlyStopping(min_delta=1e-5, patience=50, mode='min', monitor='val_loss', restore_best_weights=True)
     # Creating ModelCheckpoint callback
-    checkpoint_filepath = 'best_model.h5'
+    checkpoint_filepath = '../best_model.h5'
     model_checkpoint = ModelCheckpoint(checkpoint_filepath, save_best_only=True, monitor='val_loss', mode='min')
     # Fit the model
     history = model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=1000,
