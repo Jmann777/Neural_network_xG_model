@@ -1,5 +1,5 @@
 """The following file creates the features used as independent variables within the neural network trained in
-xG_advancement.py. It consists of a basic distance and angle based xG calculation combined with goalkeeper location and
+model_training.py. It consists of a basic distance and angle based xG calculation combined with goalkeeper location and
 close player location
 """
 import numpy as np
@@ -23,7 +23,7 @@ def default_model_vars(shots: pd.DataFrame) -> pd.DataFrame:
     model_vars["goal"] = shots.outcome_name.apply(lambda cell: 1 if cell == 'Goal' else 0)
     model_vars["goal_smf"] = model_vars['goal'].astype(object)
     # ball location (x)
-    model_vars['x0'] = model_vars.x
+    model_vars['x_ball'] = model_vars.x
     # Calculating angle and distance
     model_vars["x"] = model_vars.x.apply(lambda cell: 105 - cell)
     model_vars["c"] = model_vars.y.apply(lambda cell: abs(34 - cell))
@@ -35,7 +35,7 @@ def default_model_vars(shots: pd.DataFrame) -> pd.DataFrame:
     return model_vars
 
 
-def dist_to_gk(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> float:
+def dist_shot_to_gk(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> float:
     """
     Calculate the distance from a shot event to the goalkeeper position.
 
@@ -50,11 +50,11 @@ def dist_to_gk(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> float:
     gk_pos: pd.DataFrame = track_df.loc[track_df["id"] == test_shot_id].loc[track_df["teammate"] == False].loc[
         track_df["position_name"] == "Goalkeeper"][["x", "y"]]
     # calculate distance from event to goalkeeper position
-    dist: pd.Series = np.sqrt((test_shot["x"] - gk_pos["x"]) ** 2 + (test_shot["y"] - gk_pos["y"]) ** 2)
-    return dist.iloc[0]
+    distance: pd.Series = np.sqrt((test_shot["x"] - gk_pos["x"]) ** 2 + (test_shot["y"] - gk_pos["y"]) ** 2)
+    return distance.iloc[0]
 
 
-def y_to_gk(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> float:
+def y_dist_to_gk(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> float:
     """
     Calculate the distance from a shot event to the goalkeeper position on the Y axis.
 
@@ -68,9 +68,9 @@ def y_to_gk(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> float:
     test_shot_id: int = test_shot["id"]
     gk_pos: pd.DataFrame = track_df.loc[track_df["id"] == test_shot_id].loc[track_df["teammate"] == False].loc[
         track_df["position_name"] == "Goalkeeper"][["y"]]
-    # calculate distance from event to goalkeeper position in y axis
-    dist: pd.Series = abs(test_shot["y"] - gk_pos["y"])
-    return dist.iloc[0]
+    # calculate distance from event to goalkeeper position in y-axis
+    y_distance: pd.Series = abs(test_shot["y"] - gk_pos["y"])
+    return y_distance.iloc[0]
 
 
 def three_meters_away(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> int:
@@ -88,9 +88,9 @@ def three_meters_away(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> int:
     player_position: pd.DataFrame = track_df.loc[(track_df["id"] == test_shot_id) & (track_df["teammate"] == False)][
         ["x", "y"]]
     # calculate opposition player distance to the ball
-    dist: pd.Series = np.sqrt(
+    opp_distance: pd.Series = np.sqrt(
         (test_shot["x"] - player_position["x"]) ** 2 + (test_shot["y"] - player_position["y"]) ** 2)
-    return len(dist[dist < 3])
+    return len(opp_distance[opp_distance < 3])
 
 
 def players_in_triangle(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> int:
@@ -124,7 +124,6 @@ def players_in_triangle(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> int:
     return len(player_position.loc[((c1 < 0) & (c2 < 0) & (c3 < 0)) | ((c1 > 0) & (c2 > 0) & (c3 > 0))])
 
 
-# goalkeeper distance to goal
 def gk_dist_to_goal(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> float:
     """
     Calculate the distance from the goalkeeper's position to the goal.
@@ -134,7 +133,7 @@ def gk_dist_to_goal(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> float:
     - track_df (pd.DataFrame): DataFrame containing tracking data, including id, location, teammate, and position_name
 
     Returns:
-    - float: Distance from the GK's position to the goal
+    - float: Distance from the Goalkeepers position to the goal
     """
     # get id of the shot to search for tracking data using this index
     test_shot_id: int = test_shot["id"]
@@ -142,8 +141,8 @@ def gk_dist_to_goal(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> float:
     gk_pos: pd.DataFrame = track_df.loc[(track_df["id"] == test_shot_id) & (
             track_df["teammate"] == False) & (track_df["position_name"] == "Goalkeeper")][["x", "y"]]
     # calculate their distance to goal
-    dist: pd.Series = np.sqrt((105 - gk_pos["x"]) ** 2 + (34 - gk_pos["y"]) ** 2)
-    return dist.iloc[0]
+    gk_distance: pd.Series = np.sqrt((105 - gk_pos["x"]) ** 2 + (34 - gk_pos["y"]) ** 2)
+    return gk_distance.iloc[0]
 
 
 # Logistic regression to calculate xg
@@ -162,7 +161,7 @@ def params(df: pd.DataFrame) -> pd.Series:
     return test_model.params
 
 
-def calculate_xG(sh: pd.Series, b: np.ndarray) -> float:
+def calculate_xg(sh: pd.Series, b: np.ndarray) -> float:
     """
     Calculate the expected goals (xG) based on model coefficients and input features.
 
@@ -173,8 +172,8 @@ def calculate_xG(sh: pd.Series, b: np.ndarray) -> float:
     Returns:
     - float: Expected goals (xG) calculated using logistic function.
     """
-    bsum = b[0]
+    b_sum = b[0]
     for i, v in enumerate(["angle", "distance"]):
-        bsum = bsum + b[i + 1] * sh[v]
-    xG = 1 / (1 + np.exp(bsum))
-    return xG
+        b_sum = b_sum + b[i + 1] * sh[v]
+    xg = 1 / (1 + np.exp(b_sum))
+    return xg

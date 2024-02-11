@@ -2,11 +2,12 @@
 of shots from the imported event data
 """
 
-from mplsoccer import Sbopen
 import pandas as pd
 
+from mplsoccer import Sbopen
 
-def sb_matches(cid: int, sid: int) -> pd.DataFrame:
+
+def matches(cid: int, sid: int) -> pd.DataFrame:
     """ Obtain seasonal match data.
 
     Parameters:
@@ -18,11 +19,11 @@ def sb_matches(cid: int, sid: int) -> pd.DataFrame:
     """
     parser = Sbopen()
     df_match: pd.DataFrame = parser.match(competition_id=cid, season_id=sid)
-    matches: pd.DataFrame = df_match.match_id.unique()
-    return matches
+    df_matches: pd.DataFrame = df_match.match_id.unique()
+    return df_matches
 
 
-def sb_shots_season(cid: int, sid: int) -> pd.DataFrame:
+def shots_season(cid: int, sid: int) -> pd.DataFrame:
     """ Obtain season shots data.
 
        Parameters:
@@ -34,9 +35,9 @@ def sb_shots_season(cid: int, sid: int) -> pd.DataFrame:
     """
     parser = Sbopen()
     df_match: pd.DataFrame = parser.match(competition_id=cid, season_id=sid)
-    matches: pd.Series = df_match.match_id.unique()
+    df_matches: pd.Series = df_match.match_id.unique()
     shot_df: pd.DataFrame = pd.DataFrame()
-    for match in matches:
+    for match in df_matches:
         parser = Sbopen()
         df_event: pd.DataFrame = parser.event(match)[0]
         shots: pd.DataFrame = df_event.loc[df_event["type_name"] == "Shot"]
@@ -47,7 +48,7 @@ def sb_shots_season(cid: int, sid: int) -> pd.DataFrame:
     return shot_df
 
 
-def sb_tracking_season(cid: int, sid: int) -> pd.DataFrame:
+def tracking_season(cid: int, sid: int) -> pd.DataFrame:
     """ Obtain seasonal tracking data.
 
        Parameters:
@@ -59,9 +60,9 @@ def sb_tracking_season(cid: int, sid: int) -> pd.DataFrame:
     """
     parser = Sbopen()
     df_match: pd.DataFrame = parser.match(competition_id=cid, season_id=sid)
-    matches: pd.Series = df_match.match_id.unique()
+    df_matches: pd.Series = df_match.match_id.unique()
     track_df: pd.DataFrame = pd.DataFrame()
-    for match in matches:
+    for match in df_matches:
         parser = Sbopen()
         df_track: pd.DataFrame = parser.event(match)[2]
         df_track.x = df_track.x.apply(lambda cell: cell * 105 / 120)
@@ -71,7 +72,7 @@ def sb_tracking_season(cid: int, sid: int) -> pd.DataFrame:
     return track_df
 
 
-def sb_events_season(cid: int, sid: int) -> pd.DataFrame:
+def events_season(cid: int, sid: int) -> pd.DataFrame:
     """ Obtain seasonal event data.
 
        Parameters:
@@ -83,9 +84,9 @@ def sb_events_season(cid: int, sid: int) -> pd.DataFrame:
     """
     parser = Sbopen()
     df_match: pd.DataFrame = parser.match(competition_id=cid, season_id=sid)
-    matches: pd.Series = df_match.match_id.unique()
+    df_matches: pd.Series = df_match.match_id.unique()
     event_df: pd.DataFrame = pd.DataFrame()
-    for match in matches:
+    for match in df_matches:
         parser = Sbopen()
         df_event: pd.DataFrame = parser.event(match)[0]
         df_event.x = df_event.x.apply(lambda cell: cell * 105 / 120)
