@@ -26,12 +26,12 @@ This file contains code that calculates xG in Euro 2020 based on the model and o
 
 **Top 10 Players by open play xG**
 
-![xG model Euro 2020 results](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/4fa14f33-07dc-46b5-9732-e7a6f6f4964d)
+![xG model Euro 2020 results](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/54839ddf-2b68-4db0-a4e1-095545d48941)
 
 **Top 10 overperforming players by open play xG per 90** 
 (note the sample size for this visualisation was reduced due to minutes played data being webscraped from the FbRef website. The difference in player naming conventions between the statsbomb and FbRef data means some players were excluded)
 
-![xG model Euro 2020 Scatter](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/7fdfaadd-631e-4168-bb42-337e2836a141)
+![xG model Euro 2020 Scatter](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/b2d19c1d-96a0-4f10-b477-01be87b73674)
 
 ## Pizza_plot_viz
 
