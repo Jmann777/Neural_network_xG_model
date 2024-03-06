@@ -59,12 +59,12 @@ def setup_model(x: np.ndarray, y: np.ndarray) -> tuple:
                                                         random_state=123, stratify=y)
     x_cal, x_val, y_cal, y_val = train_test_split(x_test, y_test, train_size=0.5,
                                                   random_state=123, stratify=y_test)
-    # Scale the data to ensure equality of feature contribution
+    # Scaling data
     scaler = StandardScaler()
     x_train = scaler.fit_transform(x_train)
     x_val = scaler.transform(x_val)
     x_cal = scaler.transform(x_cal)
-    # Save fitted scaler for use in other file
+    # Saving fitted scaler for use in other file
     joblib.dump(scaler, '../fitted_scaler.joblib')
     return x_train, x_val, x_cal, y_train, y_val, y_cal
 
@@ -86,7 +86,7 @@ def run_model(x_train: np.ndarray, y_train: np.ndarray, x_val: np.ndarray, y_val
         - History: Training history containing loss and accuracy metrics.
     """
     model = create_model()
-    # early stopping object (callback)- https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/EarlyStopping
+    # Early stopping object (callback)
     callback = EarlyStopping(min_delta=1e-5, patience=50, mode='min', monitor='val_loss', restore_best_weights=True)
     # Creating ModelCheckpoint callback
     checkpoint_filepath = '../best_model.h5'

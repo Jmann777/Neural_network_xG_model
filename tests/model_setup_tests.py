@@ -1,3 +1,5 @@
+""" The following seeks to test the model set up functions to ensure we are producing accurate results"""
+
 import pytest
 import pandas as pd
 import numpy as np

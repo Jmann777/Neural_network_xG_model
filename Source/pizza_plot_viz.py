@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 
 from mplsoccer import PyPizza, add_image
 from scipy import stats
-from typing import Tuple, List, Any
+from typing import Tuple, List
 
-""" **** Data preparation ****"""
+""" **** Data preparation **** """
 
 competition_id: int = 55
 season_id: int = 43
@@ -123,7 +123,9 @@ shot_stats: pd.DataFrame = npshots_npg_xg(shots)
 pass_stat: pd.DataFrame = assists_kp_kpxg(passes, events_xg_merge)
 
 combined_stats: pd.DataFrame = pd.concat([shot_stats,
-                            pass_stat.drop(columns=['player_name', 'Player_Minutes'])], axis=1)
+                                          pass_stat.drop(columns=['player_name', 'Player_Minutes'])], axis=1)
+
+""" ***** Data visualisations *****"""
 
 
 def pizza_data_setup(combined_stats: pd.DataFrame) -> Tuple[List[int], List[str], List[str], List[str]]:
@@ -134,11 +136,11 @@ def pizza_data_setup(combined_stats: pd.DataFrame) -> Tuple[List[int], List[str]
     player_viz: List[str] = player.columns[:]
     player_val: List[float] = [round(player[column].iloc[0], 2) for column in player_viz]
     combined_viz = combined_stats.fillna(0, inplace=True)
-    player_percentiles: List[int] = [int(stats.percentileofscore(combined_stats[column], player[column].iloc[0])) for column in
-                          player_viz]
+    player_percentiles: List[int] = [int(stats.percentileofscore(
+        combined_stats[column], player[column].iloc[0])) for column in player_viz]
 
     att_names: List[str] = ["Non-Penalty Goals", "Non-Penalty Goals p90", "xG", "xG p90", "Shots", "Shots p90",
-                 "Assists", "Assists p90", "key passes", "key passes p90", "key pass xg", "key pass xg p90"]
+                            "Assists", "Assists p90", "key passes", "key passes p90", "key pass xg", "key pass xg p90"]
     slice_colors: List[str] = ["#138015"] * 6 + ["#FFD449"] * 6
     text_colors: List[str] = ["#000000"] * 12
     return player_percentiles, att_names, slice_colors, text_colors
@@ -236,4 +238,3 @@ pizza_plot(att_names, player_percentiles, slice_colors, text_colors)
 plt.show()
 
 # todo extra plot filter to strikers in Euros?
-# todo update git

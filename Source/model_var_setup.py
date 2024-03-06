@@ -1,4 +1,5 @@
-"""The following file creates the features used as independent variables within the neural network trained in
+"""
+The following file creates the features used as independent variables within the neural network trained in
 model_training.py. It consists of a basic distance and angle based xG calculation combined with goalkeeper location and
 close player location
 """
@@ -104,9 +105,8 @@ def players_in_triangle(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> int:
     Returns:
     - int: Number of opposition players inside the defined triangle.
     """
-    # get id of the shot to search for tracking data using this index
+    # get shot id and opposition player location
     test_shot_id: int = test_shot["id"]
-    # get all opposition's player location
     player_position: pd.DataFrame = track_df.loc[(track_df["id"] == test_shot_id) & (
             track_df["teammate"] == False)][["x", "y"]]
     # checking if point inside a triangle
@@ -135,9 +135,8 @@ def gk_dist_to_goal(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> float:
     Returns:
     - float: Distance from the Goalkeepers position to the goal
     """
-    # get id of the shot to search for tracking data using this index
+    # get shot id and goalkeeper position
     test_shot_id: int = test_shot["id"]
-    # get goalkeeper position
     gk_pos: pd.DataFrame = track_df.loc[(track_df["id"] == test_shot_id) & (
             track_df["teammate"] == False) & (track_df["position_name"] == "Goalkeeper")][["x", "y"]]
     # calculate their distance to goal
@@ -145,7 +144,9 @@ def gk_dist_to_goal(test_shot: pd.DataFrame, track_df: pd.DataFrame) -> float:
     return gk_distance.iloc[0]
 
 
-# Logistic regression to calculate xg
+""" ***** Logistic regression to calculate xg ***** """
+
+
 def params(df: pd.DataFrame) -> pd.Series:
     """
      Fit a Generalized Linear Model to the provided DataFrame and return the model parameters.

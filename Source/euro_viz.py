@@ -1,22 +1,18 @@
-""" The following script creates four data visualisations based on the results within euros_results.py.
+""" The following script creates two data visualisations based on the results within euros_results.py.
 
 The visualisations are as follows:  - Bar Chart of the top ten highest xG players at the euros
-                                    - Shot maps of the top ten highest xG players at the euros
-                                    - Scatter plot of xG per 90 vs actual goals per 90
-                                    - Player radar of Kasper Dolberg"""
+                                    - Scatter plot of xG per 90 vs actual goals per 90"""
 
-import euros_results
-import jmann_viz_setup as jvs
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 import matplotlib.patheffects as path_effects
 
 from mplsoccer import VerticalPitch
 from highlight_text import fig_text
+from Source import  euros_results, jmann_viz_setup as jvs
 
-""" ***** Data preparation for visualisation ***** """
+""" ***** Data preparation ***** """
 
 # Bar chart and shot data prep
 top_players: pd.DataFrame = euros_results.shots.groupby(
@@ -151,8 +147,7 @@ fig_text(
 # Show plot
 plt.show()
 
-# todo make barchart green and create more viz- shotmap of top 10 highest xG players - https://www.sonofacorner.com/shot-maps-a-matplotlib-tutorial/
-# todo player radar of Kasper Dolberg?
+#todo shotmap of top 10 highest xG players - https://www.sonofacorner.com/shot-maps-a-matplotlib-tutorial/
 # todo can I put these into functions?
 # Top 10 xG shot maps
 # Draw pitch
@@ -168,7 +163,7 @@ vertical_pitch = VerticalPitch(
 )
 
 
-def top10_xg_mapplot(ax, grids, player_name, data=top_players):
+#def top10_xg_mapplot(ax, grids, player_name, data=top_players):
     '''
     This plots our shot heat map based on the grids defined
     by the soc_pitch_divisions function.
@@ -229,3 +224,5 @@ def top10_xg_mapplot(ax, grids, player_name, data=top_players):
         counter += 1
 
     return ax
+
+#todo add saved csvs

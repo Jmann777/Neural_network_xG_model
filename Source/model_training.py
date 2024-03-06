@@ -5,35 +5,31 @@ After the model is run, visualisations of the model are created which include as
 calibration curves).
 """
 
-# Importing modules
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from Source import model, model_var_setup as mvs, statsbomb as sb
-
-# Import machine learning libraries
+from Source import model, model_var_setup as mvs, statsbomb_jm as sb
 from sklearn.metrics import roc_curve, roc_auc_score, brier_score_loss
 from sklearn.calibration import calibration_curve
 
 ''' ***** Data Prep *****'''
-# Opening data
+
 competition_id: int = 1238
 season_id: int = 108
 matches_df: pd.DataFrame = sb.matches(competition_id, season_id)
 shots: pd.DataFrame = sb.shots_season(competition_id, season_id)
 tracking_df: pd.DataFrame = sb.tracking_season(competition_id, season_id)
 
-# Filtering out non open_play shots
+# Filtering data
 shots = shots[shots["sub_type_name"] == "Open Play"]
-# Filter out shots where goalkeeper was not tracked
 gks_tracked: np.ndarray = tracking_df[tracking_df["teammate"] == False][
     tracking_df["position_name"] == "Goalkeeper"]['id'].unique()
 shots = shots[shots["id"].isin(gks_tracked)]
 
 ''' ***** Model Prep- This includes the creation of features within the model taken from Shots_Features.py  *****'''
 
-# Importing model variables
+# Importing and creating model variables
 model_vars: pd.DataFrame = mvs.default_model_vars(shots=shots)
 b: pd.Series = mvs.params(model_vars)
 model_vars["xg_basic"] = model_vars.apply(mvs.calculate_xg, b=b, axis=1)
@@ -42,9 +38,7 @@ model_vars["gk_distance_y_axis"] = shots.apply(mvs.y_dist_to_gk, track_df=tracki
 model_vars["close_players"] = shots.apply(mvs.three_meters_away, track_df=tracking_df, axis=1)
 model_vars["players_in_triangle"] = shots.apply(mvs.players_in_triangle, track_df=tracking_df, axis=1)
 model_vars["gk_dist_to_goal"] = shots.apply(mvs.gk_dist_to_goal, track_df=tracking_df, axis=1)
-# create binary variable 1 if ball is closer to the goal than goalkeeper
 model_vars["closer_to_goal"] = np.where(model_vars["gk_dist_to_goal"] > model_vars["distance"], 1, 0)
-# create binary variable 1 if header
 model_vars["header"] = shots.body_part_name.apply(lambda cell: 1 if cell == "Head" else 0)
 
 # store dependent variable in a numpy array
@@ -98,8 +92,8 @@ axs[1].set_xlabel('Predicted Probability')
 axs[1].set_title("Calibration curve")
 plt.show()
 
-# Brier score- 0 represents perfect accuracy
+
 print("Brier score", brier_score_loss(y_cal, y_prediction))
 
-# From our results we can see that our model is satisfactory, however it tends to assign more goals than in actuality
+#todo GIT! From our results we can see that our model is satisfactory, however it tends to assign more goals than in actuality
 # when the probability of a goal is higher.
