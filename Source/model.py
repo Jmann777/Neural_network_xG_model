@@ -14,7 +14,7 @@ and is taken from David Sumpter's soccermatics lesson 7.
 import joblib
 import numpy as np
 
-from keras import Sequential
+from keras import Sequential, callbacks
 from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint, EarlyStopping
@@ -70,7 +70,7 @@ def setup_model(x: np.ndarray, y: np.ndarray) -> tuple:
 
 
 def run_model(x_train: np.ndarray, y_train: np.ndarray, x_val: np.ndarray, y_val: np.ndarray)\
-        -> tuple[Sequential, np.ndarray]:
+        -> tuple[Sequential, callbacks.History]:
     """
     Trains the neural network model using the provided training and validation sets.
 

@@ -10,30 +10,42 @@ from typing import Tuple, List
 
 """ **** Data preparation **** """
 
-competition_id: int = 55
-season_id: int = 43
 
-file_path_xg: str = 'euros_predicted_goals.csv'
-modelled_xg: pd.DataFrame = pd.read_csv(file_path_xg)
-events: pd.DataFrame = sb.events_season(competition_id, season_id)
-passes: pd.DataFrame = events.loc[events["type_name"] == "Pass"]
-file_path_shots: str = 'euros_shot_xg.csv'
-shots: pd.DataFrame = pd.read_csv(file_path_shots)
-events_xg_merge: pd.DataFrame = events.merge(shots[['id', 'our_xg']], how='left', on='id')
-# Obtain minutes played data
-file_path_min: str = '../euro2020.csv'
-m_played: pd.DataFrame = pd.read_csv(file_path_min)
-m_played = m_played.rename(columns={"Player_name": 'player_name'})
-
-
-def npshots_npg_xg(shot_data: pd.DataFrame) -> pd.DataFrame:
-    """ Obtains and adjusts the number shots, non-penalty goals, and the xG of all players per 90
-
-    Parameters:
-    - shot_data (pd.DataFrame): Dataframe containing shot data from statsbomb
+def data_prep_pizza() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """ Obtains shot, pass, xg, and minutes played data from Euro 2020.
 
     Returns:
-    - shot_data (pd.DataFrame): Dataframe containing shot related data for all players. Specifically, number of shots,
+    - shots (pd.Dataframe): Dataframe containing all shots at Euro 2020 and associated data
+    - passes (pd.Dataframe): Dataframe contain all passes at Euro 2020 and associated data
+    - events_xg_merge (pd.Dataframe): Dataframe containing all events at Euro 2020 with our_xg merged
+    - m_played (pd.Dataframe): Dataframe containing the amount of minutes played by each player at Euro 2020
+    - modelled_xg (pd.Dataframe): Dataframe containing all players at Euro 2020 and their xG
+    """
+    competition_id: int = 55
+    season_id: int = 43
+
+    file_path_xg: str = 'euros_predicted_goals.csv'
+    modelled_xg: pd.DataFrame = pd.read_csv(file_path_xg)
+    events: pd.DataFrame = sb.events_season(competition_id, season_id)
+    passes: pd.DataFrame = events.loc[events["type_name"] == "Pass"]
+    file_path_shots: str = 'euros_shot_xg.csv'
+    shots: pd.DataFrame = pd.read_csv(file_path_shots)
+    events_xg_merge: pd.DataFrame = events.merge(shots[['id', 'our_xg']], how='left', on='id')
+    # Obtain minutes played data
+    file_path_min: str = '../euro2020.csv'
+    m_played: pd.DataFrame = pd.read_csv(file_path_min)
+    m_played = m_played.rename(columns={"Player_name": 'player_name'})
+    return shots, passes, events_xg_merge, m_played, modelled_xg
+
+
+shots, passes, events_xg_merge, m_played, modelled_xg = data_prep_pizza()
+
+
+def npshots_npg_xg() -> pd.DataFrame:
+    """ Obtains and adjusts the number shots, non-penalty goals, and the xG of all players per 90
+
+    Returns:
+    - shot_stats (pd.DataFrame): Dataframe containing shot related data for all players. Specifically, number of shots,
     non-penalty goals, and xG per 90.
     """
     # Assuming 'shots' DataFrame contains 'player_id' and 'player_name' columns
@@ -119,7 +131,7 @@ def assists_kp_kpxg(passes: pd.DataFrame, events_xg: pd.DataFrame) -> pd.DataFra
     return pass_stats
 
 
-shot_stats: pd.DataFrame = npshots_npg_xg(shots)
+shot_stats: pd.DataFrame = npshots_npg_xg()
 pass_stat: pd.DataFrame = assists_kp_kpxg(passes, events_xg_merge)
 
 combined_stats: pd.DataFrame = pd.concat([shot_stats,
