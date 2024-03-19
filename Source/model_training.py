@@ -78,9 +78,22 @@ x: np.ndarray = model_vars[["x_ball", "closer_to_goal", "angle", "distance", "gk
 x_train, x_val, x_cal, y_train, y_val, y_cal = model.setup_model(x, y)
 model, history = model.run_model(x_train, y_train, x_val, y_val)
 
-def training_history_viz():
-    fig, axs = plt.subplots(2, figsize=(10, 12), facecolor='#bebfc4')
 
+# fig, axs = plt.subplots(2, figsize=(10, 12), facecolor='#bebfc4')
+
+def training_history_viz():
+    """
+       Visualize training history including accuracy and loss.
+
+       Args:
+           history: The training history object containing accuracy and loss metrics.
+    """
+    fig = plt.figure(figsize=(10, 12))
+    fig.patch.set_facecolor('#bebfc4')
+    axs = fig.subplots(2)
+
+    for ax in axs:
+        ax.set_facecolor('#bebfc4')
     # plot training history - accuracy
     axs[0].plot(history.history['accuracy'], label='train')
     axs[0].plot(history.history['val_accuracy'], label='validation')
@@ -88,6 +101,7 @@ def training_history_viz():
     axs[0].set_xlabel("Epoch")
     axs[0].set_ylabel("Accuracy")
     axs[0].legend()
+    axs[0].set_ylim(0.875, 0.925)
 
     # plot training history - loss function
     axs[1].plot(history.history['loss'], label='train')
@@ -98,32 +112,57 @@ def training_history_viz():
     axs[1].set_ylabel("MSE")
 
     # Add logo
-    jvs.watermark(ax, 10, 6)
+    jvs.watermark(axs[1], 10, 6)
 
+
+training_history_viz()
 plt.show()
 
-# Model Assessment using ROC(+AUC)
-plt, axs = plt.subplots(2, figsize=(10, 12))
-y_prediction: np.ndarray = model.predict(x_cal)
-fpr, tpr, _ = roc_curve(y_cal, y_prediction)
-auc: float = roc_auc_score(y_cal, y_prediction)
-axs[0].plot(fpr, tpr, label="AUC = " + str(auc)[:4])
-axs[0].plot([0, 1], [0, 1], color='black', ls='--')
-axs[0].legend()
-axs[0].set_ylabel('True Positive Rate')
-axs[0].set_xlabel('False Positive Rate')
-axs[0].set_title('ROC curve')
 
-# Model Assessment -Calibration curve- Actual probability vs predicted probability
-prob_true, prob_prediction = calibration_curve(y_cal, y_prediction, n_bins=10)
-axs[1].plot(prob_true, prob_prediction)
-axs[1].plot([0, 1], [0, 1], color='black', ls='--')
-axs[1].set_ylabel('Empirical Probability')
-axs[1].set_xlabel('Predicted Probability')
-axs[1].set_title("Calibration curve")
+def model_assess_viz():
+    """Visualiases model assessment including ROC curve and Calibration curve.
+
+     Args:
+         model: The trained model for assessment
+         x_cal: The features used for calibration
+         y_cal: The true labels for calibration
+
+     Returns:
+         y_prediction: The predicted labels by the model
+     """
+    # Model Assessment using ROC(+AUC)
+    fig, axs = plt.subplots(2, figsize=(10, 12))
+    fig.patch.set_facecolor('#bebfc4')
+
+    for ax in axs:
+        ax.set_facecolor('#bebfc4')
+
+    y_prediction: np.ndarray = model.predict(x_cal)
+    fpr, tpr, _ = roc_curve(y_cal, y_prediction)
+    auc: float = roc_auc_score(y_cal, y_prediction)
+    axs[0].plot(fpr, tpr, label="AUC = " + str(auc)[:4])
+    axs[0].plot([0, 1], [0, 1], color='black', ls='--')
+    axs[0].legend()
+    axs[0].set_ylabel('True Positive Rate')
+    axs[0].set_xlabel('False Positive Rate')
+    axs[0].set_title('ROC curve')
+
+    # Model Assessment -Calibration curve- Actual probability vs predicted probability
+    prob_true, prob_prediction = calibration_curve(y_cal, y_prediction, n_bins=10)
+    axs[1].plot(prob_true, prob_prediction)
+    axs[1].plot([0, 1], [0, 1], color='black', ls='--')
+    axs[1].set_ylabel('Empirical Probability')
+    axs[1].set_xlabel('Predicted Probability')
+    axs[1].set_title("Calibration curve")
+
+    # Add logo
+    jvs.watermark(axs[1], 10, 6)
+
+    return y_prediction
+
+
+model_assess_viz()
 plt.show()
+y_pred = model_assess_viz()
 
-print("Brier score", brier_score_loss(y_cal, y_prediction))
-
-# todo GIT! From our results we can see that our model is satisfactory, however it tends to assign more goals than in actuality
-# when the probability of a goal is higher.
+print("Brier score", brier_score_loss(y_cal, y_pred))
