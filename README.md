@@ -1,39 +1,45 @@
-# Neural_network_xG_model
-The following repository stores syntax related to football analytics.
+# Introduction
+xG (expected goals) is a metric used within football to describe the probability of shot converting into a goal. The following project predicts xG based on a 3 layer (2 RelU, 1 sigmoid) neural network model. The model is fed event and tracking data taken from the ISL and is then applied to Euro 2020 data to assess the xG performance of players at the Euros. This model is built solely for entertainment purposes and is not applied to any form of contextual project basis. Please see the NCFC model for a contextual project
 
-## Description
-This repository contains syntax based on David Sumpter's Expected goals neural network modelling tutorial- found here https://soccermatics.readthedocs.io/en/latest/gallery/lesson7/plot_xG_tracking.html.
-It creates an xG based on a 3 layer (2 RelU, 1 sigmoid) neural netwrok to predict whether a goal is scored (1) or a goal is not scored (0) based on a basic set of variables obtained from tracking data.
+The model is heavily based on David Sumpter's Expected goals neural network modelling tutorial- found here https://soccermatics.readthedocs.io/en/latest/gallery/lesson7/plot_xG_tracking.html.
 
-The model itself is based from Indian Super League data and combines both event and tracking data. From the calibration curve (see model assessment viz) we can see that our model sees fluctuations in how it values higher probability goal scoring opportunites. However, we have an AUC of 0.75 and a brier score of 0.08 meaning that the model is acceptable when you take into account the small amount of data it is provided.
+# Setup
 
-The model is then used to calculate open play xG in Euro 2020. This model can be used to identify player performance and can be used as a player evaluation model when considering player recruitment identification.
+### Data Collection
 
-### statsbomb_jm
-This file contains basic code used to open event and tracking data. It also filters the data down to seasonal data and shot data.
+Event and tracking data was taken from the Indian Super League as well as Euro 2020 (provided by Statsbomb). Both datasets were prepped and cleaned with the ISL dataset being used for modelling and the modle then being applied to the Euro 2020 dataset. As well as event and tracking data, minutes played data was used (provided by a kaggle dataset) to standardise xG per 90 when assessing results. 
 
-### model_var_setup and model_setup_tests
-model_var-setup.py creates the features used as independent variables within the neural network model and is associated with model_setup_tests.py which use pytests to test whether the functions work.
+### Data Preparation + Feature Engineering
+To prepare the features for the model a number of transformations were performed to both the event and tracking data. The data engineering to create the iondependent variables included:
+- Goal angle + distance calcualtions
+- Calculations of the distance between the shot and the goalkeeper
+- Calculations to count the number of players with 3 meters of the shot.
+- Calculations to determine the number of players within a defined traingle around the shot location.
+- The goalkeeper distance to the goal
+- Whether the shot was a header or regular
 
-### model
-This file contains the neural network used to model xG.
+# Modelling
 
-### model_training
-This file contains code training the neural network to predict xG on Indian Super League event and tracking data. It also includes visualisations of model accuracy (see below):
+### Metric Selection
+As dicussed above the model metrics surrounded basic xG calcualtions (distance + angle, regular shots vs headers) as well as metrics based on tracking data (all other metrics). The concept behind this was to build upon the standard xG calcuation with the addition of tracking calucations which take a step towards increasing the complexity of the model by applying external effects on the ball (opposition and teammates). 
 
-**Training history**
+### Model Evaluation + Development
+The model was evaluated using training accuracy + loss to assess model training fit (figure 1), as well as ROC + AUC to assess accuracy (figure 2). In addition, the model seeks to optimise its Brier Score using the Adam optimiser, applies a learning rate of 0.001, and sets a patience level of 50.
+
+The model evaluations were visualised and are shown in the figures below. From these figures we can see that the model fits the data well and provides a sufficient predictive capability with the amount of data vaialble for training.
+
+**Figure 1- Training history**
 
 ![Accuracy](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/911d6b8d-fee2-4fd1-8884-a13e5ee48411)
 
-**Model Assessment**
+**Figure 2- Model Assessment**
 
 ![Curves](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/4727bdc6-7089-4774-9943-09f7d4349eed)
 
-### euro_results
-This file contains code that applies the neural network created in model.py and trained in model_training.py to Euro 2020 data.
+# Results
 
-### euro_viz
-This file creates visualisations of the reuslts provided in euro_results.py. See the visualisations below:
+### Applying the results to find high performing players
+After training and evaluation the model was applied to Euro 2020 data. Once applied, xG was standardised by minutes played through the creation of the xG per 90 variable (minimum of 90 minutes played). Alongside total xG, xG per 90 informed high performing players and was visualsied below. These visualisations included total open play xG and xG overperformance per 90.
 
 **Top 10 Players by open play xG**
 
@@ -44,18 +50,20 @@ This file creates visualisations of the reuslts provided in euro_results.py. See
 
 ![xG model Euro 2020 Scatter](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/b2d19c1d-96a0-4f10-b477-01be87b73674)
 
-### pizza_plot_viz
-
-This file contains code that builds a player radar based on the percentile ranking of finishing and playmaking statistics in Euro 2020. Specifically it examines Kasper Dolberg who has been previously identified as someone who is overperforming his xG (seen in the scatter gram above).
+From these visualisations Kasper Dolberg was found as the top xG overperformer at Euro 2020. As such a player radar was created for him.
 
 **Kasper Dolberg player radar**
 
 ![Kasper Dolberg Euro 2020](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/2ecc9e96-1834-4041-b101-c7f4d12b13ea)
 
+# Conclusions
+The neural network xG model produced in this project provided evidence of the combination of event and tracking data and their uses in modelling xG. As the dataset used to train the model was small, evaluation results dipped below industry standard but were still satisfactory. As more event and tracking data is released by football data providers I will seek to build upon this foundational model by feeding more data, applying more features, and experimenting with other model (e.g. rndm forests + logistic regression).
+
 ## Sources
 The following sources were used to create this project: <br>
 Cavus, M. and Biecek, P., 2022, October. Explainable expected goal models for performance analysis in football analytics. In 2022 IEEE 9th International Conference on Data Science and Advanced Analytics (DSAA) (pp. 1-9). IEEE. <br>
 Fernandez, J., Bornn, L. and Cervone, D. (2021) ‘A framework for the fine-grained evaluation of the instantaneous expected value of soccer possessions’, Machine Learning, 110, pp. 1389–1427. <br>
+Pardo, P.M., 2020. Creating a model for expected goals in football using qualitative player information (Doctoral dissertation, Universitat Politècnica de Catalunya. Facultat d'Informàtica de Barcelona).
 Singh, K. (2018) Introducing Expected Threat (xT). Available at: https://karun.in/blog/expected-threat.html (Accessed: 19 March 2024). <br>
 Spearman, W., 2018, February. Beyond expected goals. In Proceedings of the 12th MIT sloan sports analytics conference (pp. 1-17). <br>
 Sumpter, D. (2022) Expected goals including player positions, Expected Goals including player positions - Soccermatics documentation. Available at: https://soccermatics.readthedocs.io/en/latest/gallery/lesson7/plot_xG_tracking.html (Accessed: 19 March 2024). <br>
