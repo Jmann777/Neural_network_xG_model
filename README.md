@@ -1,7 +1,5 @@
 # Introduction
-xG (expected goals) is a metric used within football to describe the probability of shot converting into a goal. The following project predicts xG based on a 3 layer (2 RelU, 1 sigmoid) neural network model. The model is fed event and tracking data taken from the ISL and is then applied to Euro 2020 data to assess the xG performance of players at the Euros. This model is built solely for entertainment purposes and is not applied to any form of contextual project basis. Please see the NCFC model for a contextual project
-
-The model is heavily based on David Sumpter's Expected goals neural network modelling tutorial- found here https://soccermatics.readthedocs.io/en/latest/gallery/lesson7/plot_xG_tracking.html.
+The following project evaluates model performance for xG prediction based on a 3 layer neural network (2 RelU, 1 sigmoid). The model is trained on event and tracking data taken from 2021/22 Indian Super League (taken from Statsbomb).
 
 # Setup
 
