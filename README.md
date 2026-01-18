@@ -48,12 +48,6 @@ After training and evaluation the model was applied to Euro 2020 data. Once appl
 
 ![xG model Euro 2020 Scatter](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/b2d19c1d-96a0-4f10-b477-01be87b73674)
 
-From these visualisations Kasper Dolberg was found as the top xG overperformer at Euro 2020. As such a player radar was created for him.
-
-**Kasper Dolberg player radar**
-
-![Kasper Dolberg Euro 2020](https://github.com/Jmann777/Neural_network_xG_model/assets/87671742/2ecc9e96-1834-4041-b101-c7f4d12b13ea)
-
 # Conclusions
 The neural network xG model produced in this project provided evidence of the combination of event and tracking data and their uses in modelling xG. As the dataset used to train the model was small, evaluation results dipped below industry standard but were still satisfactory. As more event and tracking data is released by football data providers I will seek to build upon this foundational model by feeding more data, applying more features, and experimenting with other model (e.g. rndm forests + logistic regression).
 
